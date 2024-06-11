@@ -1,33 +1,39 @@
+import { StyleSheet, Text, View } from "react-native";
+import Home from "./src/screens/home";
+import { useState } from "react";
+import AddNote from "./src/screens/addNote";
+import EditNote from "./src/screens/editNote";
 
-import { StyleSheet, Text, View } from 'react-native';
-import CustomButton from './src/components/customButton';
-import CustomTextInput from './src/components/customTextInput';
+const CurrentPageWidget = ({ currentPage, noteList, setCurrentPage }: any) => {
+  switch (currentPage) {
+    case "home":
+      return <Home noteList={noteList} setCurrentPage={setCurrentPage} />;
+    case "add":
+      return <AddNote />;
+    case "edit":
+      return <EditNote />;
+    default:
+      return <Home />;
+  }
+};
 
 export default function App() {
+  
+  const [currentPage, setCurrentPage] = useState('home')
+  
+  const [noteList, setNoteList] = useState([
+    {
+      id: 1,
+      title: "Note pertama",
+      desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
+    },
+  ]);
+
   return (
-    <View style={styles.container}>
-      <CustomButton 
-        backgroundColor = '#DDDDDD'
-        color = "#39494F"
-        text = "Custome Button"
-        width = "100%"
-        onPress = {() => {}}
-      />
-      <CustomTextInput
-        label="Custome Text"
-        multiline
-        numberOfLines = {2}
-        onChange = {() => {}}
-      />
-    </View>
+    <CurrentPageWidget
+      currentPage={currentPage}
+      setCurrentPage={setCurrentPage}
+      noteList={noteList}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-   display : 'flex',
-   flexDirection: 'column',
-   justifyContent: 'center',
-   padding: 40
-  },
-});
