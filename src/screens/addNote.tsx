@@ -1,14 +1,17 @@
-import { StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import { StyleSheet, Text, View, KeyboardAvoidingView } from "react-native";
+import React, { useContext, useState } from "react";
+import { NoteContext } from "../context/NoteContext";
 import CustomButton from "../components/customButton";
 import CustomTextInput from "../components/customTextInput";
 
-const addNote = ({ setCurrentPage, addNote }: any) => {
+const addNote = ({ setCurrentPage }: any) => {
+  const { addNote }: any = useContext(NoteContext);
+
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView behavior="height" style={styles.container}>
       <Text style={styles.pageTitle}>Tambahkan NOTE</Text>
       <CustomTextInput
         text={title}
@@ -34,9 +37,10 @@ const addNote = ({ setCurrentPage, addNote }: any) => {
           width="100%"
           // Jalankan function addNote dan arahkan kembali layar ke Home
           onPress={() => {
-            addNote(title, desc)
-            setCurrentPage('home')
+            addNote(title, desc);
+            setCurrentPage("home");
           }}
+          disable={title === ""}
         />
       </View>
       <View style={styles.spacerTop}>
@@ -48,7 +52,7 @@ const addNote = ({ setCurrentPage, addNote }: any) => {
           onPress={() => setCurrentPage("home")}
         />
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -69,6 +73,6 @@ const styles = StyleSheet.create({
     color: "#203239",
   },
   spacerTop: {
-    marginTop: 30,
+    marginTop: 20,
   },
 });
