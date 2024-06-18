@@ -1,13 +1,23 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  StatusBar,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
+import React, { useContext, useState } from "react";
 import CustomButton from "../components/customButton";
+import { NoteContext } from "../context/NoteContext";
+// import editNote from './editNote';
 
 // NoteCard
-const NoteCard = ({ item, setCurrentPage }: any) => (
+const NoteCard = ({ item, editNote, deleteNote, setCurrentPage }: any) => (
   <View style={styles.card}>
     <Text style={styles.cardTitle}>{item.title}</Text>
     <Text>{item.desc}</Text>
-    <View style={styles.buttons}>
+    <View style={styles.button}>
       <CustomButton
         backgroundColor="#FFC300"
         color="#151D3B"
@@ -16,7 +26,8 @@ const NoteCard = ({ item, setCurrentPage }: any) => (
         width={100}
         // layar 'edit' saat tombol ditekan
         onPress={() => {
-          setCurrentPage("edit");
+          editNote(item); // edit
+          setCurrentPage("editNote"); // ke screen edit
         }}
       />
       <CustomButton
@@ -25,51 +36,104 @@ const NoteCard = ({ item, setCurrentPage }: any) => (
         text="Hapus"
         fontSize={12}
         width={100}
-        onPress={() => {}}
+        onPress={() => {
+          deleteNote(item.id); // delete
+        }}
       />
     </View>
   </View>
 );
 
-const Home = ({ noteList, setCurrentPage }: any) => {
+const Home = ({ setCurrentPage }: any) => {
+  const {
+    noteList,
+    editNote,
+    deleteNote,
+    showModal,
+    closeModal,
+    openModal,
+  }: any = useContext(NoteContext);
+
+  const renderEmptyData = () => {
+    return (
+      <View
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: 100,
+        }}
+      >
+        <Text style={{ fontSize: 34, fontWeight: 700, color: "#d1d1d1" }}>
+          No Data
+        </Text>
+        <Text
+          style={{
+            fontSize: 24,
+            color: "#d1d1d1",
+          }}
+        >
+          Please Create First
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
+      <StatusBar translucent={false} backgroundColor={"red"} />
       <CustomButton
         backgroundColor="#DDD"
         color="#203239"
         text="Tambahkan Note"
         width="100%"
         // layar "add" saat tombol ditekan
-        onPress={() => {
-          setCurrentPage("add");
-        }}
+        onPress={() => setCurrentPage("addNote")}
       />
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        data={noteList}
-        // menambahkan function "setCurrentPage" ke component "NoteCard"
-        renderItem={({ item }) => (
-          <NoteCard item={item} setCurrentPage={setCurrentPage} />
-        )}
-        keyExtractor={(item) => item.id}
-      />
+      {noteList < 1 ? (
+        renderEmptyData()
+      ) : (
+        <FlatList
+          // showsVerticalScrollIndicator={false}
+          data={noteList}
+          // menambahkan function "setCurrentPage" ke component "NoteCard"
+          renderItem={({ item }) => (
+            <NoteCard
+              item={item}
+              setCurrentPage={setCurrentPage}
+              deleteNote={() => openModal(item.id)}
+              editNote={editNote}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      )}
+      <Modal animationType="slide" visible={showModal}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={deleteNote}>
+              <Text style={styles.modalText}>yes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={closeModal}>
+              <Text style={styles.modalText}>cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
-
-export default Home;
 
 const styles = StyleSheet.create({
   container: {
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
-    padding: 20,
+    padding: 30,
   },
   card: {
     padding: 10,
     marginVertical: 15,
-    borderColor: '#DDD',
+    borderColor: "#DDD",
     borderWidth: 2,
     borderRadius: 5,
   },
@@ -79,10 +143,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
   },
-  buttons: {
+  button: {
     marginTop: 10,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-evenly",
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
+  },
+  modalContent: {
+    padding: 40,
+    width: 240,
+    backgroundColor: "#c1c9c4",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+  },
+  modalText: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
 });
+
+export default Home;
